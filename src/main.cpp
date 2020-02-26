@@ -1,10 +1,6 @@
-#include <algorithm>
 #include <iostream>
-#include <utility>
 #include <vector>
 
-#include <cassert>
-#include <cmath>
 #include <cstdlib>
 
 #include "Network.hpp"
