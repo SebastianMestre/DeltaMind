@@ -19,15 +19,18 @@ void Trainer::train (
 
 	std::vector<Vector> results;
 
-	Vector current = example_input;
-	current.push_back(1.0f); // bias
+	{
+		Vector current = example_input;
+		for (int i = 0; i < network.weights.size(); ++i) {
+			current.push_back(1.0f); // bias
+			Vector next = feed_forward(current, network.weights[i]);
 
-	results.push_back(current);
-	for (int i = 0; i < network.weights.size(); ++i) {
-		current = feed_forward(current, network.weights[i]);
+			results.push_back(std::move(current));
+			current = std::move(next);
 
+		}
 		current.push_back(1.0f); // bias
-		results.push_back(current);
+		results.push_back(std::move(current));
 	}
 
 	Vector dC_dO(network.sizes.back()+1);
@@ -38,17 +41,19 @@ void Trainer::train (
 
 	std::vector<Matrix> weights_gradients;
 
-	Vector current_gradient = dC_dO;
-	for (int l = network.weights.size(); l--;) {
+	{
+		Vector current_gradient = dC_dO;
+		for (int l = network.weights.size(); l--;) {
 
-		auto new_gradients = propagate_gradient(
+			auto new_gradients = propagate_gradient(
 				results[l], results[l+1],
 				network.weights[l], current_gradient
-				);
+			);
 
-		weights_gradients.push_back(new_gradients.second);
+			weights_gradients.push_back(std::move(new_gradients.second));
 
-		current_gradient = new_gradients.first;
+			current_gradient = std::move(new_gradients.first);
+		}
 	}
 
 	std::reverse(weights_gradients.begin(), weights_gradients.end());
