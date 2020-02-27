@@ -1,12 +1,14 @@
 
+path_to_source=../src
+VPATH:=$(path_to_source)
+
 CXX=g++
-CXXFLAGS= -fsanitize=undefined -g -Wall
-LIBS=-lasan -lubsan
+CXXFLAGS=-O2
 
-deltaMind: main.o Network.o Trainer.o math.o
-	g++ -o $@ $^ $(LIBS)
+OBJS=Network.o Trainer.o math.o
 
-main.o: main.cpp
+libdeltamind.o: $(OBJS)
+	ar rcs $@ $^
 
 Network.o: Network.cpp Network.hpp types.hpp math.hpp
 Network.hpp: types.hpp
@@ -21,7 +23,7 @@ math.o: math.cpp math.hpp types.hpp
 math.hpp: types.hpp
 
 %.o: %.cpp
-	$(CXX) -c $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm deltaMind *.o
+	rm *.o
